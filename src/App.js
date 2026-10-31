@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
 import EmployeeForm from './components/EmployeeForm';
 import EmployeeList from './components/EmployeeList';
 import EmployeeDetail from './components/EmployeeDetail';
@@ -24,6 +23,19 @@ function App() {
     localStorage.setItem('employees', JSON.stringify(employees));
   }, [employees]);
 
+  // Simple page switching: read the page from the URL hash (#/employees/123)
+  const [hash, setHash] = useState(window.location.hash);
+
+  useEffect(() => {
+    const onHashChange = () => setHash(window.location.hash);
+    window.addEventListener('hashchange', onHashChange);
+    // Clean up the listener when the component unmounts
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  const match = hash.match(/^#\/employees\/(.+)$/);
+  const selectedId = match ? match[1] : null;
+
   const addEmployee = (employee) => {
     const newEmployee = { ...employee, EmployeeId: Date.now() };
     setEmployees([...employees, newEmployee]);
@@ -31,21 +43,14 @@ function App() {
 
   return (
     <div className="App">
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <>
-              <EmployeeForm onAddEmployee={addEmployee} />
-              <EmployeeList employees={employees} />
-            </>
-          }
-        />
-        <Route
-          path="/employees/:id"
-          element={<EmployeeDetail employees={employees} />}
-        />
-      </Routes>
+      {selectedId ? (
+        <EmployeeDetail employees={employees} id={selectedId} />
+      ) : (
+        <>
+          <EmployeeForm onAddEmployee={addEmployee} />
+          <EmployeeList employees={employees} />
+        </>
+      )}
     </div>
   );
 }
