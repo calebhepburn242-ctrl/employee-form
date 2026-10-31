@@ -1,18 +1,16 @@
 import React from 'react';
-import { Link, useParams } from 'react-router-dom';
 
 function EmployeeDetail(props) {
-  // Read the employee id from the URL (/employees/:id)
-  const { id } = useParams();
+  // Find the employee whose id matches the id in the URL
   const employee = props.employees.find(
-    (emp) => String(emp.EmployeeId) === id
+    (emp) => String(emp.EmployeeId) === props.id
   );
 
   if (!employee) {
     return (
       <div style={{ textAlign: 'center', fontFamily: 'Arial, sans-serif' }}>
         <h2>Employee not found</h2>
-        <Link to="/">Back to Employee List</Link>
+        <a href="#/">Back to Employee List</a>
       </div>
     );
   }
@@ -24,13 +22,14 @@ function EmployeeDetail(props) {
       <p><strong>Email:</strong> {employee.email}</p>
       <p><strong>Job Title:</strong> {employee.title}</p>
       <p><strong>Department:</strong> {employee.department}</p>
-      <Link to="/">Back to Employee List</Link>
+      <a href="#/">Back to Employee List</a>
     </div>
   );
 }
 
 EmployeeDetail.defaultProps = {
   employees: [],
+  id: '',
 };
 
 export default EmployeeDetail;
