@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import EmployeeForm from './components/EmployeeForm';
+import EmployeeList from './components/EmployeeList';
+import EmployeeDetail from './components/EmployeeDetail';
 
 function App() {
-  // Load any saved employees from local storage when the app first starts
+  // Load saved employees from local storage (and give older entries an id)
   const [employees, setEmployees] = useState(() => {
     try {
       const saved = localStorage.getItem('employees');
-      return saved ? JSON.parse(saved) : [];
+      const list = saved ? JSON.parse(saved) : [];
+      return list.map((emp, index) => ({
+        ...emp,
+        EmployeeId: emp.EmployeeId || Date.now() + index,
+      }));
     } catch (error) {
       return [];
     }
@@ -18,20 +25,27 @@ function App() {
   }, [employees]);
 
   const addEmployee = (employee) => {
-    setEmployees([...employees, employee]);
+    const newEmployee = { ...employee, EmployeeId: Date.now() };
+    setEmployees([...employees, newEmployee]);
   };
 
   return (
-    <div className="App" style={{ textAlign: 'center', fontFamily: 'Arial, sans-serif' }}>
-      <EmployeeForm onAddEmployee={addEmployee} />
-      <h2>Employee List</h2>
-      <ul style={{ listStyle: 'none', padding: 0 }}>
-        {employees.map((emp, index) => (
-          <li key={index}>
-            {emp.name} ({emp.email}) - {emp.title}, {emp.department}
-          </li>
-        ))}
-      </ul>
+    <div className="App">
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <>
+              <EmployeeForm onAddEmployee={addEmployee} />
+              <EmployeeList employees={employees} />
+            </>
+          }
+        />
+        <Route
+          path="/employees/:id"
+          element={<EmployeeDetail employees={employees} />}
+        />
+      </Routes>
     </div>
   );
 }
