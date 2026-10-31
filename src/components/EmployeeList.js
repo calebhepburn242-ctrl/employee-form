@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import './EmployeeList.css';
 
 function EmployeeList(props) {
@@ -11,9 +10,9 @@ function EmployeeList(props) {
         {props.employees.map((employee) => (
           <li key={employee.EmployeeId}>
             {/* Create a link to the employee detail page */}
-            <Link to={`/employees/${employee.EmployeeId}`}>
+            <a href={`#/employees/${employee.EmployeeId}`}>
               {employee.name}
-            </Link>
+            </a>
           </li>
         ))}
       </ul>
