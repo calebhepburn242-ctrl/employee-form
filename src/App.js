@@ -1,27 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { EmployeeProvider, useEmployees, addEmployee } from './EmployeeContext';
 import EmployeeForm from './components/EmployeeForm';
 import EmployeeList from './components/EmployeeList';
 import EmployeeDetail from './components/EmployeeDetail';
 
-function App() {
-  // Load saved employees from local storage (and give older entries an id)
-  const [employees, setEmployees] = useState(() => {
-    try {
-      const saved = localStorage.getItem('employees');
-      const list = saved ? JSON.parse(saved) : [];
-      return list.map((emp, index) => ({
-        ...emp,
-        EmployeeId: emp.EmployeeId || Date.now() + index,
-      }));
-    } catch (error) {
-      return [];
-    }
-  });
-
-  // Save the employees to local storage every time the list changes
-  useEffect(() => {
-    localStorage.setItem('employees', JSON.stringify(employees));
-  }, [employees]);
+function AppContent() {
+  const { employees, dispatch } = useEmployees();
 
   // Simple page switching: read the page from the URL hash (#/employees/123)
   const [hash, setHash] = useState(window.location.hash);
@@ -36,22 +20,25 @@ function App() {
   const match = hash.match(/^#\/employees\/(.+)$/);
   const selectedId = match ? match[1] : null;
 
-  const addEmployee = (employee) => {
-    const newEmployee = { ...employee, EmployeeId: Date.now() };
-    setEmployees([...employees, newEmployee]);
-  };
-
   return (
     <div className="App">
       {selectedId ? (
         <EmployeeDetail employees={employees} id={selectedId} />
       ) : (
         <>
-          <EmployeeForm onAddEmployee={addEmployee} />
-          <EmployeeList employees={employees} />
+          <EmployeeForm onAddEmployee={(emp) => dispatch(addEmployee(emp))} />
+          <EmployeeList />
         </>
       )}
     </div>
+  );
+}
+
+function App() {
+  return (
+    <EmployeeProvider>
+      <AppContent />
+    </EmployeeProvider>
   );
 }
 
